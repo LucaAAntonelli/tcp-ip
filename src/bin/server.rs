@@ -21,7 +21,18 @@ fn handle_client(mut stream: TcpStream) {
 }
 
 fn main() {
-    let listener TcpListener::bind("0.0.0.0:3333").unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3333").unwrap();
     println!("Server listening on port 3333");
-    
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) => {
+                println!("New connection: {}", stream.peer_addr().unwrap());
+                thread::spawn(move || handle_client(stream));
+            }
+            Err(e) => {
+                println!("Error: {e}");
+            }
+        }
+    }
+    drop(listener);
 }
